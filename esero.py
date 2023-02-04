@@ -28,7 +28,19 @@ def Pressure():
     time.sleep(.5)
     return pressure
 
-def addData(temperature,humidity,pressure):
+def Acceleration():
+    speed = 0
+    prev_accel = sense.get_accelerometer_raw()
+    curr_accel = sense.get_accelerometer_raw()
+    delta_accel = {axis: curr_accel[axis] - prev_accel[axis] for axis in ['x', 'y', 'z']}
+    prev_accel = curr_accel
+    speed += sum(delta_accel.values())
+    stampaA = "V: " + str(round(speed,2))
+    sense.show_message(stampaA,back_colour=[100,0,0])
+    time.sleep(0.5)
+    return round(speed,2)
+
+def addData(temperature,humidity,pressure,acceleration):
     measurement = ET.SubElement(root, 'measurement')
     t = ET.SubElement(measurement, 'temperature')
     t.text = str(temperature)
@@ -36,6 +48,8 @@ def addData(temperature,humidity,pressure):
     h.text = str(humidity)
     p = ET.SubElement(measurement, 'pressure')
     p.text = str(pressure)
+    p = ET.SubElement(measurement, 'acceleration')
+    p.text = str(acceleration)
     tree = ET.ElementTree(root)
     ET.indent(tree, space="\t", level=0)
     tree.write('data.xml', encoding="utf-8")
@@ -47,5 +61,6 @@ if __name__ == "__main__":
         tempe = Temperature()
         humi = Humidity()
         pressu = Pressure()
-        addData(tempe,humi,pressu)
+        acce = Acceleration()
+        addData(tempe,humi,pressu,acce)
         print("scansione")
